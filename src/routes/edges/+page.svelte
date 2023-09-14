@@ -3,6 +3,11 @@
 	import Edge from '$lib/components/Edge/Edge.svelte';
 
 	let childrenHidden = true;
+
+	function onSlotClicked(data: any) {
+		console.log(data.detail.source);
+		console.log(data.detail.target);
+	}
 </script>
 
 <body>
@@ -10,8 +15,11 @@
 		<Svelvet TD theme="dark" width={800} height={500} zoom={0.5} controls title="tests" minimap>
 			<Node connections={[2, 3]} useDefaults width={200} height={100}>
 				<Anchor output>
-					<Edge slot="edge" color="yellow" label="Hello" />
+					<Edge slot="edge" color="yellow" label="Hello"  on:slotClick={onSlotClicked}/>
 				</Anchor>
+			</Node>
+
+			<Node id=4 useDefaults width={200} height={100}>
 			</Node>
 		</Svelvet>
 	</div>
