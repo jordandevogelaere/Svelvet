@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	import { calculateStepPath, calculateRadius, calculatePath } from '$lib/utils/calculators';
-	import { onMount, onDestroy, getContext, afterUpdate } from 'svelte';
+	import { onMount, onDestroy, getContext, afterUpdate, createEventDispatcher } from 'svelte';
 	import { directionVectors, stepBuffer } from '$lib/constants';
 	import { buildPath, rotateVector } from '$lib/utils/helpers';
 	import { buildArcStringKey, constructArcString } from '$lib/utils/helpers';
@@ -24,6 +24,8 @@
 </script>
 
 <script lang="ts">
+	const dispatch = createEventDispatcher();
+
 	const edgeStore = getContext<Graph['edges']>('edgeStore');
 	const edgeStyle = getContext<EdgeStyle>('edgeStyle');
 	const raiseEdgesOnSelect = getContext('raiseEdgesOnSelect');
@@ -212,6 +214,13 @@
 		animationFrameId = requestAnimationFrame(trackPath);
 	}
 
+	function onSlotClick() {
+		dispatch('slotClick', {
+			source: source,
+			target: target
+		});
+	}
+
 	export function destroy() {
 		if (source.id === null || target.id === null) return;
 		const edgeKey = edgeStore.match(source, target);
@@ -330,15 +339,19 @@
 		{#if renderLabel}
 			<foreignObject x={labelPoint.x} y={labelPoint.y} width="100%" height="100%">
 				<span class="label-wrapper">
-					<slot name="label">
-						<div
-							class="default-label"
-							style:--prop-label-color={labelColor}
-							style:--prop-label-text-color={textColor}
-						>
-							{labelText}
-						</div>
-					</slot>
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<div on:click={onSlotClick}>
+						<slot name="label">
+							<div
+								class="default-label"
+								style:--prop-label-color={labelColor}
+								style:--prop-label-text-color={textColor}
+							>
+								{labelText}
+							</div>
+						</slot>
+					</div>
 				</span>
 			</foreignObject>
 		{/if}
